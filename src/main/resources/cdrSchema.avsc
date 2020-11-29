@@ -1,0 +1,71 @@
+{
+ "type": "record",
+ "name": "cdrRecords",
+ "doc" : "Cdrs Records",
+ "fields":
+ [{
+  "name": "exchange_id",
+  "type": "string"
+ },
+ {
+  "name": "calling_number",
+  "type": "string"
+ },
+ {
+  "name": "called_number",
+  "type": "string"
+ },
+ {
+  "name": "serial_number",
+  "type": "string"
+ },
+ {
+  "name": "call_type",
+  "type": "int"
+ },
+ {
+  "name": "call_duration",
+  "type": "double"
+ },
+ {
+  "name": "start_time",
+  "type": "string"
+ },
+ {
+   "name": "imsi",
+   "type": "string"
+ },
+ {
+   "name": "switch_call",
+   "type": "string"
+ },
+ {
+   "name": "cell_in",
+   "type": "string"
+ },
+ {
+   "name": "cell_out",
+   "type": "string"
+ },
+ {
+  "name": "tecnologia",
+  "type": "string"
+ },
+ {
+  "name": "filename",
+  "type": "string"
+ },
+ {
+  "name": "first_lac",
+  "type": "string"
+ },
+ {
+  "name": "last_lac",
+  "type": "string"
+ },
+ {
+  "name": "ggcn_addrress",
+  "type": "string"
+  }
+ ]
+}
