@@ -81,7 +81,7 @@ public class ParquetService {
                     .option("recursiveFileLookup", "true")
                     .load(folder);
 
-            cdr.filter("were exchange_id = 8138");
+            cdr = cdr.filter(cdr.col("exchange_id").equalTo("7985"));
 
             cdr.show();
 
