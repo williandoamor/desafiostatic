@@ -21,7 +21,7 @@ public class WriterParquet {
 
         try {
 
-            Path path = new Path(folder + "cdr" + System.currentTimeMillis() + ".parquet");
+            Path path = new Path(folder + "cdr-" + System.currentTimeMillis() + ".parquet");
             writer = AvroParquetWriter
                     .<GenericData.Record>builder(path)
                     .withRowGroupSize(ParquetWriter.DEFAULT_BLOCK_SIZE)

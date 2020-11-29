@@ -6,10 +6,8 @@ import br.com.loadti.desafiostatic.schemas.ParseSchema;
 import br.com.loadti.desafiostatic.writeParquet.WriterParquet;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import org.apache.spark.sql.Dataset;
-import org.apache.spark.sql.Row;
-import org.apache.spark.sql.SQLContext;
-import org.apache.spark.sql.SparkSession;
+import org.apache.spark.api.java.function.MapFunction;
+import org.apache.spark.sql.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -64,21 +62,29 @@ public class ParquetService {
     public void readerParquet(String folder) {
 
         try {
-
+            Dataset<Row> cdr = null;
             SparkSession session = SparkSession
                     .builder()
                     .appName("Desafio Static")
                     .master("local")
+                    .config("recursiveFileLookup", "true")
                     .config("spark.io.compression.codec", "snappy")
                     .getOrCreate();
 
             session.sql("set spark.sql.files.ignoreCorruptFiles=true");
 
-            SQLContext context = new SQLContext(session);
-            //Dataset<Row> cdr = session.read().format("parquet").option("cdr", "*.parquet").load(folder);
-            Dataset<Row> cdr = context.parquetFile(folder);
+           /* SQLContext context = new SQLContext(session);
+            String path = folder + "cdr-*.parquet";
+            Dataset<Row> cdr = context.parquetFile(path);*/
+
+            cdr = session.read().format("parquet")
+                    .option("recursiveFileLookup", "true")
+                    .load(folder);
+
+            cdr.filter("were exchange_id = 8138");
 
             cdr.show();
+
 
 
         } catch (Exception e) {
