@@ -1,27 +1,26 @@
 package br.com.loadti.desafiostatic.services;
 
-import br.com.loadti.desafiostatic.cdr.Cdr;
+import br.com.loadti.desafiostatic.objetos.Cdr;
 import br.com.loadti.desafiostatic.records.CreadRecord;
 import br.com.loadti.desafiostatic.response.Response;
 import br.com.loadti.desafiostatic.schemas.ParseSchema;
-import br.com.loadti.desafiostatic.util.Numeric;
 import br.com.loadti.desafiostatic.writeParquet.WriterParquet;
 import org.apache.avro.Schema;
 import org.apache.avro.generic.GenericData;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.spark.api.java.JavaRDD;
-import org.apache.spark.api.java.function.Function;
-import org.apache.spark.api.java.function.MapFunction;
-import org.apache.spark.sql.*;
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
-import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.StringTokenizer;
 
@@ -33,6 +32,7 @@ public class ParquetService {
 
     public Response readFile(MultipartFile file, String folder) {
 
+        Path path = Paths.get(folder);
         StringTokenizer st;
         String line = "";
         List<GenericData.Record> records = new ArrayList<>();
@@ -44,6 +44,12 @@ public class ParquetService {
         }
         //
         try {
+
+            if (Files.notExists(path)) {
+
+                File parquetfiles = new File(folder);
+                parquetfiles.mkdir();
+            }
 
             Schema schema = ParseSchema.parserSchema("/cdrSchema.avsc");
             BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()));
@@ -70,67 +76,92 @@ public class ParquetService {
     }
 
 
-    public List<Cdr> readerParquet(String folder, String dataini, String datafim, String chamador, String recebedor, String antenain, String antenaout) throws ParseException {
+    public Response readerParquet(String folder, String dataini, String datafim, String chamador, String recebedor, String antenain, String antenaout) throws ParseException {
+
 
         try {
 
-            SparkSession session = SparkSession
-                    .builder()
-                    .appName("Desafio Static")
-                    .master("local")
-                    .config("recursiveFileLookup", "true")
-                    .config("spark.io.compression.codec", "snappy")
-                    .getOrCreate();
+            Path path = Paths.get(folder);
+            Dataset<Row> cdrDataset = null;
+            Response response = null;
 
-            session.sql("set spark.sql.files.ignoreCorruptFiles=true");
+            if (Files.notExists(path)) {
 
-            Dataset<Row> cdrDataset = session.read().format("parquet")
-                    .option("recursiveFileLookup", "true")
-                    .load(folder);
 
-            /*Verifica se foi passado data para realizar a filtragem
-             * do arquivo*/
-            if (dataini != null && !"".equalsIgnoreCase(dataini)
-                    && datafim != null && !"".equalsIgnoreCase(datafim)) {
+                return new Response().Error("O caminho " + folder + " não existe. Por favor verifique!");
 
-                /*Filtra a data maior que a data inicial e menor que a data final*/
-                cdrDataset = cdrDataset.filter(lit(dataini).gt(date("start_time"))).filter(lit(datafim).gt(date("start_time")));
+            } else {
+
+
+                SparkSession session = SparkSession
+                        .builder()
+                        .appName("Desafio Static")
+                        .master("local")
+                        .config("recursiveFileLookup", "true")
+                        .config("spark.io.compression.codec", "snappy")
+                        .getOrCreate();
+
+                session.sql("set spark.sql.files.ignoreCorruptFiles=true");
+
+                cdrDataset = session.read().format("parquet")
+                        .option("recursiveFileLookup", "true")
+                        .load(folder);
+
+                /*Verifica se foi passado data para realizar a filtragem
+                 * do arquivo*/
+                if (dataini != null && !"".equalsIgnoreCase(dataini)
+                        && datafim != null && !"".equalsIgnoreCase(datafim)) {
+
+                    /*Filtra a data maior que a data inicial e menor que a data final*/
+                    cdrDataset = cdrDataset.filter(lit(dataini).gt(date("start_time"))).filter(lit(datafim).gt(date("start_time")));
+
+                }
+                //
+                /*Filtra pelo numero que fez a chamada*/
+                if (!"".equalsIgnoreCase(chamador)) {
+
+                    cdrDataset = cdrDataset.filter(cdrDataset.col("calling_number").equalTo(chamador));
+
+                }
+                //
+                /*Filtra pelo recebedor da chamada*/
+                if (!"".equalsIgnoreCase(recebedor)) {
+
+                    cdrDataset = cdrDataset.filter(cdrDataset.col("called_number").equalTo(recebedor));
+                }
+                //
+                /*Filtra pela antena de entrada*/
+                if (!"".equalsIgnoreCase(antenain)) {
+
+                    cdrDataset = cdrDataset.filter(cdrDataset.col("cell_in").equalTo(antenain));
+                }
+                //
+                /*Filtra pela antena de saida*/
+                if (!"".equalsIgnoreCase(antenaout)) {
+
+                    cdrDataset = cdrDataset.filter(cdrDataset.col("cell_out").equalTo(antenaout));
+                }
+                //
 
             }
-            //
-            /*Filtra pelo numero que fez a chamada*/
-            if (!"".equalsIgnoreCase(chamador)) {
 
-                cdrDataset = cdrDataset.filter(cdrDataset.col("calling_number").equalTo(chamador));
+            if (cdrDataset != null && !cdrDataset.isEmpty()) {
 
+
+                response = new Response().OK(dsForList(cdrDataset.collectAsList()));
+
+
+            } else {
+
+                response = new Response().Vazio("Sem dados para exibir");
             }
-            //
-            /*Filtra pelo recebedor da chamada*/
-            if (!"".equalsIgnoreCase(recebedor)) {
 
-                cdrDataset = cdrDataset.filter(cdrDataset.col("called_number").equalTo(recebedor));
-            }
-            //
-            /*Filtra pela antena de entrada*/
-            if (!"".equalsIgnoreCase(antenain)) {
-
-                cdrDataset = cdrDataset.filter(cdrDataset.col("cell_in").equalTo(antenain));
-            }
-            //
-            /*Filtra pela antena de saida*/
-            if (!"".equalsIgnoreCase(antenaout)) {
-
-                cdrDataset = cdrDataset.filter(cdrDataset.col("cell_out").equalTo(antenaout));
-            }
-            //
-
-            return dsForList(cdrDataset.collectAsList());
+            return response;
 
         } catch (Exception e) {
 
             e.printStackTrace();
-            throw e;
-
+            return new Response().Error("Erro ao consultar dados " + e.getMessage());
         }
 
     }

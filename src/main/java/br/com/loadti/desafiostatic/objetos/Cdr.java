@@ -1,14 +1,9 @@
-package br.com.loadti.desafiostatic.cdr;
+package br.com.loadti.desafiostatic.objetos;
 
-import br.com.loadti.desafiostatic.util.Numeric;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.spark.sql.Row;
-
-import java.math.BigDecimal;
-import java.util.List;
 
 @Data
 @Builder
