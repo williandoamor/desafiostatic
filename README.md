@@ -127,7 +127,7 @@ mvn spring-boot:run
  - No desenvolvimento dessa API foi se deu preferência pela utilização do tipo de arquivo parquet. Viu-se durante o desenvolvimento
  que o mesmo foi de mais fácil aprendizagem, geração e leitura.
 
-São necessários os seguintes pré-requisitos para a execução do projeto:
+## Pré-Requisitos para execução do projeto.
 
 * Java 8 ou versões superiores.
 * Maven 3.6.3 ou versões superiores.
