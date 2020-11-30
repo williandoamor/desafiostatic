@@ -57,9 +57,9 @@ Cada linha desse arquivo é um CDR contendo dados da chamada.
 
 Utilize o protótipo a seguir como inspiração para sua interface.
 
-<p align="left">
+<p align="center">
   <a href="https://tatic.net/">
-      <img src="https://bytebucket.org/tatic_rhdev/desafioengenheiro/raw/2458d4a6657c0166bbba4ca069f66830eee5e17c/Prototipo-pt.png" alt="Static" width="300px"/>
+      <img src="https://bytebucket.org/tatic_rhdev/desafioengenheiro/raw/2458d4a6657c0166bbba4ca069f66830eee5e17c/Prototipo-pt.png" alt="Static"/>
   </a>
 </p>
 
@@ -94,3 +94,42 @@ Os seguintes critérios serão avaliados
 * O projeto deve conter um arquivo Readme.md com as instruções para compilação e execução
 * Adicionar seções justificando suas escolhas
 * O sistema deve ser executado com docker e docker-compose
+
+## Compilando o Projeto
+
+* Para executar o projeto no terminal, digite o seguinte comando:
+
+```shell script
+mvn spring-boot:run 
+```
+
+* Após executar o comando acima já será possível utilizar os recursos da API.
+
+* Esta API possui dois recursos principais.
+
+## Convertendo e salvando arquivos
+
+ - Para realizar o upload o arquivo a ser convertido em CDR basta informar o recurso e informar o método POST
+ através do Posman ou enviar uma solicitação POST pelo front-end. A API aceita arquivos de até 15MB cada.
+  
+```
+  localhost:8080/fileupload
+  ``` 
+## Utilizando o recurso de pesquisa de dados
+- Para realizar a busca é necessário também realizar a passagem de parâmetros por via método POST e utilizar o recurso:
+
+  ```
+   localhost:8080/reader
+  ```  
+ - A API irá retornar response com o status code da requisição e também uma lista de objetos com os dados localizador pelos parâmetros de busca.
+
+## Por que Parquet
+ - No desenvolvimento dessa API foi se deu preferência pela utilização do tipo de arquivo parquet. Viu-se durante o desenvolvimento
+ que o mesmo foi de mais fácil aprendizagem, geração e leitura.
+
+São necessários os seguintes pré-requisitos para a execução do projeto:
+
+* Java 8 ou versões superiores.
+* Maven 3.6.3 ou versões superiores.
+* Intellj IDEA Community Edition ou sua IDE favorita.
+ - Para utilizar no Intellj é necessário instalar o plugin do Lombok na IDE.
