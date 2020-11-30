@@ -57,7 +57,12 @@ Cada linha desse arquivo é um CDR contendo dados da chamada.
 
 Utilize o protótipo a seguir como inspiração para sua interface.
 
-![Prototipo](Prototipo-pt.png "Protótipo")
+<p align="left">
+  <a href="https://tatic.net/">
+      <img src="https://bytebucket.org/tatic_rhdev/desafioengenheiro/raw/2458d4a6657c0166bbba4ca069f66830eee5e17c/Prototipo-pt.png" alt="Static" width="300px"/>
+  </a>
+</p>
+
 
 ## Recomendações
 
