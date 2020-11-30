@@ -1,4 +1,4 @@
-![Desafio Tatic] (https://bytebucket.org/tatic_rhdev/desafioengenheiro/raw/2458d4a6657c0166bbba4ca069f66830eee5e17c/logo-tatic.png =150x76 "Desafio Tatic Estágio")
+![Desafio Tatic] (![alt text](https://bytebucket.org/tatic_rhdev/desafioengenheiro/raw/2458d4a6657c0166bbba4ca069f66830eee5e17c/logo-tatic.png) =150x76 "Desafio Tatic Estágio")
 
 ## Desafio Tatic
 
